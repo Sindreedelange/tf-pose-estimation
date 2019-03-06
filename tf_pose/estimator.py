@@ -15,6 +15,8 @@ from tf_pose import common
 from tf_pose.common import CocoPart
 from tf_pose.tensblur.smoother import Smoother
 
+from tf_pose.number_util import round_traditional as round_to
+
 try:
     from tf_pose.pafprocess import pafprocess
 except ModuleNotFoundError as e:
@@ -381,7 +383,7 @@ class TfPoseEstimator:
         return npimg_q
 
     @staticmethod
-    def draw_humans(npimg, humans, imgcopy=False, frame=0, output_json_dir=None):
+    def draw_humans(npimg, humans, imgcopy=False, frame=0, output_json_dir=None, num_decimals = 6):
         if imgcopy:
             npimg = np.copy(npimg)
         image_h, image_w = npimg.shape[:2]
@@ -397,15 +399,15 @@ class TfPoseEstimator:
                     continue
                 
                 body_part = human.body_parts[i]
-                print("Body_part: {}".format(body_part))
-                print("Body_part score: {}".format(body_part.score))
+                #print("Body_part: {}".format(body_part))
+                #print("Body_part score: {}".format(body_part.score))
                 center = (int(body_part.x * image_w + 0.5), int(body_part.y * image_h + 0.5))
                 centers[i] = center
                 #add x
-                flat[i*3] = center[0]
+                flat[i*3] = round_to(center[0]/image_w, num_decimals)
                 #add y
-                flat[i*3+1] = center[1]
-                flat[i*3+2] = body_part.score
+                flat[i*3+1] = round_to(center[1]/image_h, num_decimals)
+                flat[i*3+2] = round_to(body_part.score, num_decimals)
                 cv2.circle(npimg, center, 8, common.CocoColors[i], thickness=3, lineType=8, shift=0)
 
             # draw line
