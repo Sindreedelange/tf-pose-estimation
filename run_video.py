@@ -1,6 +1,8 @@
 import argparse
 import logging
 import time
+import os
+import sys
 
 import cv2
 import numpy as np
@@ -39,6 +41,10 @@ if __name__ == '__main__':
     w, h = model_wh(args.resolution)
     e = TfPoseEstimator(get_graph_path(args.model), target_size=(w, h))
     end_load_estimator = time.time() - start
+
+    if not os.path.isdir(args.output_json):
+        os.makedirs(args.output_json)
+
     vid = cv2.VideoCapture(args.video)
     success, image = vid.read()
     if not success:
